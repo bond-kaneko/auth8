@@ -10,8 +10,8 @@ func main() {
 		fmt.Fprintf(w, "Hello, World!")
 	})
 
-	fmt.Println("Server is running on port 8888...")
-	if err := http.ListenAndServe(":8888", nil); err != nil {
+	fmt.Println("Server is running on port 9000...")
+	if err := http.ListenAndServe(":9000", nil); err != nil {
 		fmt.Printf("Error starting server: %s\n", err)
 	}
 }
