@@ -3,7 +3,7 @@ package auth
 var Client = OAuthClient{
 	Id:          "client1",
 	Secret:      "secret1",
-	RedirectUrl: "http://localhost:9000/callback",
+	RedirectUrl: "http://localhost:9001/callback",
 }
 
 type OAuthClient struct {
