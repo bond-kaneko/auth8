@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+            <html>
+            <head>
+                <title>OAuth Client</title>
+            </head>
+            <body>
+				<h1>OAuth Client</h1>
+                <div style="text-align:right">
+                    <a href="http://localhost:9002/protected"><button>Get Protected Resource</button></a>
+                </div>
+                <div style="text-align: center; margin: auto; width: 50%;">
+					<div>
+						<h2>Client</h2>
+						<table style="text-align: left">
+							<tr>
+								<th>Client ID</th>
+								<td>{{.ClientId}}</td>
+							</tr>
+							<tr>
+								<th>Client Secret</th>
+								<td>{{.ClientSecret}}</td>
+							</tr>
+							<tr>
+								<th>Callback URL</th>
+								<td>{{.CallbackUrl}}</td>
+							</tr>
+						</table>
+					</div>
+					<div>
+						<h2>Authorization Server</h2>
+						<table style="text-align: left">
+							<tr>
+								<th>Authorization Endpoint</th>
+								<td>{{.AuthorizationEndpoint}}</td>
+							</tr>
+							<tr>
+								<th>Token Endpoint</th>
+								<td>{{.TokenEndpoint}}</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+            </body>
+            </html>
