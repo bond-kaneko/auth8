@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ログイン</title>
+</head>
+<body>
+    <h1>ログイン</h1>
+    <form action="/approve" method="post">
+        <input type="hidden" name="requestId" value={{.RequestId}}>
+        <input type="hidden" name="userId" value={{.UserId}}>
+        <input type="hidden" name="userName" value={{.UserName}}>
+        <label>{{.UserName}} としてログインする</label>
+        <input type="submit" value="ログイン">
+    </form>
+</body>
+</html>
