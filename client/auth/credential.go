@@ -13,8 +13,8 @@ type OAuthClient struct {
 }
 
 var Server = OAuthServer{
-	AuthorizationEndpoint: "http://localhost:8888/authorize",
-	TokenEndpoint:         "http://localhost:8888/token",
+	AuthorizationEndpoint: "http://localhost:9000/authorize",
+	TokenEndpoint:         "http://localhost:9000/token",
 }
 
 type OAuthServer struct {
