@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+  app:
+    image: golang:1.22
+    command: sh -c "go install github.com/air-verse/air && air"
+    volumes:
+      - ./authorizationServer/:/go/src/app
+      - authorizationServer-go-mod:/go/pkg/mod
+    working_dir: /go/src/app
+    ports:
+      - "8888:8888"
+volumes:
+  authorizationServer-go-mod:
+    driver: local
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "./authorizationServer/go-mod"
