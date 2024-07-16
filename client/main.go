@@ -55,6 +55,6 @@ func main() {
 		fmt.Fprintf(w, html, auth.Client.Id, auth.Client.Secret, auth.Client.CallbackUrl, auth.Server.AuthorizationEndpoint, auth.Server.TokenEndpoint)
 	})
 
-	fmt.Println("Server is running on http://localhost:9000")
-	http.ListenAndServe(":9000", nil)
+	fmt.Println("Server is running on http://localhost:9001")
+	http.ListenAndServe(":9001", nil)
 }

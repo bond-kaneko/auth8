@@ -1,18 +1,26 @@
 version: "3.8"
 services:
-  authorizationServer:
-    image: golang:1.22
-    command: sh -c "go install github.com/air-verse/air && air"
+  authorization-server:
+    build:
+      dockerfile: docker/Dockerfile
     volumes:
       - ./authorizationServer/:/go/src/app
     working_dir: /go/src/app
     ports:
-      - "8888:8888"
+      - "9000:9000"
   client:
-    image: golang:1.22
-    command: sh -c "go install github.com/air-verse/air && air"
+    build:
+      dockerfile: docker/Dockerfile
     volumes:
       - ./client/:/go/src/app
     working_dir: /go/src/app
     ports:
-      - "9000:9000"
+      - "9001:9001"
+  protected-resource:
+    build:
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ./protectedResource/:/go/src/app
+    working_dir: /go/src/app
+    ports:
+      - "9002:9002"
