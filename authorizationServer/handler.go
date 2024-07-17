@@ -3,8 +3,10 @@ package main
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/bond-kaneko/auth8/client"
 	"github.com/bond-kaneko/auth8/internal"
@@ -76,7 +78,7 @@ func mustRandomString(n int) string {
 	if err != nil {
 		panic(err)
 	}
-	return base64.URLEncoding.EncodeToString(b)
+	return strings.ReplaceAll(base64.URLEncoding.EncodeToString(b), "=", "")
 }
 
 type CodeRequest struct {
@@ -131,4 +133,83 @@ func Approve(w http.ResponseWriter, r *http.Request) {
 	redirectUrl.RawQuery = q.Encode()
 
 	http.Redirect(w, r, redirectUrl.String(), http.StatusFound)
+}
+
+var IssuedTokens = []Token{}
+
+type Token struct {
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
+	User        User   `json:"user"`
+}
+
+func IssueToken(w http.ResponseWriter, r *http.Request) {
+	auth := r.Header.Get("Authorization")
+	if auth == "" {
+		http.Error(w, "Authorization header is required", http.StatusBadRequest)
+		return
+	}
+	credentialsBytes, err := base64.StdEncoding.DecodeString(auth[len("basic "):])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	credentials := string(credentialsBytes)
+	clientId := strings.Split(credentials, ":")[0]
+
+	clientSecret := strings.Split(credentials, ":")[1]
+	cl := client.Find(clientId)
+	if cl == nil {
+		http.Error(w, "client_id is invalid", http.StatusBadRequest)
+		return
+	}
+	if cl.ClientSecret != clientSecret {
+		http.Error(w, "client_secret is invalid", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	grantType := r.PostForm.Get("grant_type")
+	if grantType != "authorization_code" {
+		http.Error(w, "grant_type is invalid", http.StatusBadRequest)
+		return
+	}
+
+	code := r.Form.Get("code")
+	codeReq, ok := CodeRequests[code]
+	if !ok {
+		http.Error(w, "code is invalid", http.StatusBadRequest)
+		return
+	}
+	delete(CodeRequests, code)
+
+	if codeReq.AuthorizeRequest.ClientId != clientId {
+		http.Error(w, "client_id is invalid", http.StatusBadRequest)
+		return
+	}
+
+	accessToken := mustRandomString(10)
+	IssuedTokens = append(IssuedTokens, Token{
+		AccessToken: accessToken,
+		TokenType:   "bearer",
+		User:        codeReq.User,
+	})
+
+	w.Header().Set("Content-Type", "application/json")
+	resBody := struct {
+		AccessToken string `json:"access_token"`
+		TokenType   string `json:"token_type"`
+	}{
+		AccessToken: accessToken,
+		TokenType:   "bearer",
+	}
+	resJson, err := json.Marshal(resBody)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(resJson)
 }
