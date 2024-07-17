@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -150,7 +149,6 @@ func IssueToken(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Authorization header is required", http.StatusBadRequest)
 		return
 	}
-	fmt.Println(auth[:len("basic ")])
 	credentialsBytes, err := base64.StdEncoding.DecodeString(auth[len("basic "):])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

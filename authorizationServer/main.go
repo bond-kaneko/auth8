@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-
-	"github.com/rs/cors"
 )
 
 func main() {
@@ -14,7 +12,7 @@ func main() {
 	mux.HandleFunc("/token", IssueToken)
 
 	fmt.Println("Server is running on port 9000...")
-	if err := http.ListenAndServe(":9000", cors.Default().Handler(mux)); err != nil {
+	if err := http.ListenAndServe(":9000", mux); err != nil {
 		fmt.Printf("Error starting server: %s\n", err)
 	}
 }
