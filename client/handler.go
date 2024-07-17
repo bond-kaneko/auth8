@@ -135,3 +135,57 @@ func Callback(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "http://localhost:9001/index.html", http.StatusFound)
 }
+
+func GetProtectedResource(w http.ResponseWriter, r *http.Request) {
+	if AccessToken == "" {
+		http.Error(w, "access token is empty", http.StatusBadRequest)
+		return
+	}
+
+	req, err := http.NewRequest("GET", "http://protected-resource:9002/protected", nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	req.Header.Set("Authorization", "Bearer "+AccessToken)
+
+	protectedRes, err := http.DefaultClient.Do(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if protectedRes.StatusCode != http.StatusOK {
+		body, err := io.ReadAll(protectedRes.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		http.Error(w, "failed to get protected resource: "+string(body), http.StatusInternalServerError)
+		return
+	}
+
+	var protectedResBody = struct {
+		Message string `json:"message"`
+	}{}
+	defer protectedRes.Body.Close()
+	err = json.NewDecoder(protectedRes.Body).Decode(&protectedResBody)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	res, err := json.Marshal(protectedResBody)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = internal.Tmpl.ExecuteTemplate(w, "fetch_resource.html", struct {
+		ProtectedResource string
+	}{
+		ProtectedResource: string(res),
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}

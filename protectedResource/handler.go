@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -26,20 +27,31 @@ func Protected(w http.ResponseWriter, r *http.Request) {
 	_, err := auth.GetAccessToken(r)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, err)
+		e := struct {
+			Error string
+		}{
+			Error: err.Error(),
+		}
+		jerr, err := json.Marshal(e)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.Write(jerr)
 		return
 	}
 
-	html := `
-		<!DOCTYPE html>
-		<html>
-		<head>
-			<title>Protected Resource</title>
-		</head>
-		<body>
-			<h1>Protected Resource</h1>
-		</body>
-		</html>
-	`
-	fmt.Fprint(w, html)
+	w.Header().Set("Content-Type", "application/json")
+	res := struct {
+		Message string `json:"message"`
+	}{
+		Message: "Protected Resource",
+	}
+	resBody, err := json.Marshal(res)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, err)
+		return
+	}
+	w.Write(resBody)
 }

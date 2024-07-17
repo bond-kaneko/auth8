@@ -9,6 +9,7 @@ func main() {
 	http.HandleFunc("/", Index)
 	http.HandleFunc("/authorize", Authorize)
 	http.HandleFunc("/callback", Callback)
+	http.HandleFunc("/protectedResource", GetProtectedResource)
 
 	fmt.Println("Server is running on http://localhost:9001")
 	http.ListenAndServe(":9001", nil)
